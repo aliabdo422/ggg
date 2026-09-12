@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width,
+                 initial-scale=1.0,
+                 maximum-scale=1.0,
+                 minimum-scale=1.0,
+                 user-scalable=no,
+                 viewport-fit=cover">
+
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <title>Sans Fight</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            touch-action: none;
+            overscroll-behavior: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        #c2canvasdiv {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: fixed;
+            inset: 0;
+            background: #000;
+        }
+
+        #c2canvas {
+            display: block;
+            touch-action: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="c2canvasdiv">
+    <canvas id="c2canvas" width="640" height="480">
+        Your browser does not support HTML5 Canvas.
+    </canvas>
+</div>
+
+<script src="jquery-3.4.1.min.js"></script>
+<script src="c2runtime.js"></script>
+
+<script>
+    jQuery(document).ready(function () {
+        cr_createRuntime("c2canvas");
+    });
+
+    function onVisibilityChanged() {
+        if (document.hidden ||
+            document.mozHidden ||
+            document.webkitHidden ||
+            document.msHidden) {
+
+            cr_setSuspended(true);
+
+        } else {
+
+            cr_setSuspended(false);
+        }
+    }
+
+    document.addEventListener(
+        "visibilitychange",
+        onVisibilityChanged,
+        false
+    );
+
+    /*
+     * Android orientation bridge.
+     *
+     * MainMenu:
+     *     640 x 1280 = portrait
+     *
+     * BattleScreen:
+     *     640 x 480 = landscape
+     */
+
+    let lastOrientation = "";
+
+    function updateGameOrientation() {
+
+        const canvas = document.getElementById("c2canvas");
+
+        if (!canvas) return;
+
+        const width = canvas.width;
+        const height = canvas.height;
+
+        let orientation;
+
+        if (height > width) {
+            orientation = "portrait";
+        } else {
+            orientation = "landscape";
+        }
+
+        if (orientation === lastOrientation)
+            return;
+
+        lastOrientation = orientation;
+
+        if (window.Android &&
+            typeof window.Android.setGameOrientation === "function") {
+
+            window.Android.setGameOrientation(orientation);
+        }
+    }
+
+    setInterval(updateGameOrientation, 500);
+</script>
+
+</body>
+</html>
